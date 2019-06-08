@@ -2,9 +2,10 @@
 declare(strict_types=1);
 
 namespace Sandbox\PHPStan\Git;
-require_once __DIR__ . '/../../../vendor/autoload.php';
+
 use Cz\Git\GitException;
 use Cz\Git\GitRepository;
+use Webmozart\PathUtil\Path;
 
 class Repository extends GitRepository
 {
@@ -13,12 +14,16 @@ class Repository extends GitRepository
         parent::__construct($repository);
     }
 
-    public function getChangedFiles(): array
+    public function getAddedFiles(): array
     {
         try {
-            return $this->extractFromCommand('git diff --diff-filter=AM --name-only master...HEAD', function ($value) {
-                return trim($value);
+            $files = $this->extractFromCommand('git diff --diff-filter=A --name-only master...HEAD', function ($value) {
+                return Path::join($this->getRepositoryPath(), trim($value));
             });
+
+            if (!empty($files)) {
+                return $files;
+            }
         } catch (GitException $e) {
             // handle exceptions
         }
@@ -26,6 +31,3 @@ class Repository extends GitRepository
         return [];
     }
 }
-
-$repo = new Repository(__DIR__ . '/../../../');
-var_dump($repo->getChangedFiles());
