@@ -1,0 +1,14 @@
+parameters:
+	repository: /Users/kawashimatoshi/git/nazonohito51/sandbox
+services:
+	-
+		class: DependencyAnalyzer\DependencyDumper\CollectDependenciesVisitor
+	-
+		class: DependencyAnalyzer\DependencyDumper\DependencyResolver
+	-
+		class: DependencyAnalyzer\DependencyGraphBuilder
+	-
+		class: DependencyAnalyzer\DependencyGraphBuilder\ExtraPhpDocTagResolver
+rules:
+	- PHPStan\Rules\Constants\ConstantRule
+	- PHPStan\Rules\Variables\VariableCertaintyInIssetRule
