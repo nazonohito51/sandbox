@@ -27,6 +27,10 @@ class ReturnTypeDeclarationsInNewClass implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
+        if (!$node instanceof Node\Stmt\Class_) {
+            return [];
+        }
+
         if (in_array($scope->getFile(), $this->repository->getAddedFiles())) {
             foreach ($node->stmts as $stmt) {
                 $errors = [];

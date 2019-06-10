@@ -14,4 +14,14 @@ class SomeClass1
     {
         return [];
     }
+
+    public function someMethod3(string $str, int $int)
+    {
+        return;
+    }
+
+    public function someMethod4()
+    {
+        $this->someMethod3('string', 3);
+    }
 }
