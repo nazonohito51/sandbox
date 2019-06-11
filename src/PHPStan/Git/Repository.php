@@ -14,6 +14,37 @@ class Repository extends GitRepository
         parent::__construct($repository);
     }
 
+    public function isAddedOrModifiedFile(string $file): bool
+    {
+        return in_array($file, $this->getAddedAndModifiedFiles());
+    }
+
+    public function getAddedAndModifiedFiles(): array
+    {
+        if (is_null($mergeBase = $this->getMergeBase())) {
+            throw new \RuntimeException();
+        }
+
+        try {
+            $files = $this->extractFromCommand("git diff --diff-filter=AM --name-only {$mergeBase}...HEAD", function ($value) {
+                return Path::join($this->getRepositoryPath(), trim($value));
+            });
+
+            if (!empty($files)) {
+                return $files;
+            }
+        } catch (GitException $e) {
+            // handle exceptions
+        }
+
+        return [];
+    }
+
+    public function isAddedFile(string $file): bool
+    {
+        return in_array($file, $this->getAddedFiles());
+    }
+
     public function getAddedFiles(): array
     {
         if (is_null($mergeBase = $this->getMergeBase())) {
@@ -33,6 +64,11 @@ class Repository extends GitRepository
         }
 
         return [];
+    }
+
+    public function isModifiedFile(string $file): bool
+    {
+        return in_array($file, $this->getModifiedFiles());
     }
 
     public function getModifiedFiles(): array
