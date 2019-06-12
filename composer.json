@@ -5,6 +5,7 @@
     }
   },
   "require": {
+    "ext-json": "*",
     "phpstan/phpstan": "~0.11",
     "czproject/git-php": "~3.17",
     "webmozart/path-util": "~2.3"
