@@ -7,3 +7,4 @@ services:
 			repository: %repository%
 rules:
 	- Sandbox\PHPStan\Rules\ReturnTypeDeclarationsInNewClass
+	- Sandbox\PHPStan\Rules\TraitRequirePropertyRule
