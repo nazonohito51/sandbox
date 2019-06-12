@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace Sandbox\PHPStan\Target;
 
 /**
- * @ore-require-property $value
+ * @ore-require-property value
  */
 trait MyTrait
 {

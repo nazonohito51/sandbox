@@ -8,6 +8,7 @@ use PHPStan\Analyser\Scope;
 use PHPStan\Broker\Broker;
 use PHPStan\PhpDocParser\Lexer\Lexer;
 use PHPStan\PhpDocParser\Parser\PhpDocParser;
+use PHPStan\PhpDocParser\Parser\TokenIterator;
 use PHPStan\Rules\Rule;
 
 class TraitRequirePropertyRule implements Rule
@@ -43,8 +44,23 @@ class TraitRequirePropertyRule implements Rule
             return [];
         }
 
-        $traitReflection = $this->broker->getClass($node->traits->toString());
+        $class = $scope->getClassReflection();
 
-        return [];
+        $errors = [];
+        foreach ($node->traits as $trait) {
+            $traitReflection = $this->broker->getClass($trait->toString());
+
+            if ($docComment = $traitReflection->getNativeReflection()->getDocComment()) {
+                $tokens = new TokenIterator($this->phpDocLexer->tokenize($docComment));
+                $phpDocNode = $this->phpDocParser->parse($tokens);
+                foreach ($phpDocNode->getTagsByName('@ore-require-property') as $phpDocTagNode) {
+                    if (!$class->hasProperty($phpDocTagNode->value->__toString())) {
+                        $errors[] = "Class using {$trait->toString()} must have {$phpDocTagNode->value->__toString()}.";
+                    }
+                }
+            }
+        }
+
+        return $errors;
     }
 }
