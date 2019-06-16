@@ -44,23 +44,31 @@ class TraitRequirePropertyRule implements Rule
             return [];
         }
 
-        $class = $scope->getClassReflection();
-
         $errors = [];
         foreach ($node->traits as $trait) {
-            $traitReflection = $this->broker->getClass($trait->toString());
-
-            if ($docComment = $traitReflection->getNativeReflection()->getDocComment()) {
-                $tokens = new TokenIterator($this->phpDocLexer->tokenize($docComment));
-                $phpDocNode = $this->phpDocParser->parse($tokens);
-                foreach ($phpDocNode->getTagsByName('@ore-require-property') as $phpDocTagNode) {
-                    if (!$class->hasProperty($phpDocTagNode->value->__toString())) {
-                        $errors[] = "Class using {$trait->toString()} must have {$phpDocTagNode->value->__toString()}.";
-                    }
+            foreach ($this->getRequiredProperties($trait->toString()) as $requiredProperty) {
+                if (!$scope->getClassReflection()->hasProperty($requiredProperty)) {
+                    $errors[] = "Class using {$trait->toString()} must have {$requiredProperty}.";
                 }
             }
         }
 
         return $errors;
+    }
+
+    private function getRequiredProperties(string $traitName): array
+    {
+        $traitReflection = $this->broker->getClass($traitName);
+
+        $requiredProperties = [];
+        if ($docComment = $traitReflection->getNativeReflection()->getDocComment()) {
+            $tokens = new TokenIterator($this->phpDocLexer->tokenize($docComment));
+            $phpDocNode = $this->phpDocParser->parse($tokens);
+            foreach ($phpDocNode->getTagsByName('@ore-require-property') as $phpDocTagNode) {
+                $requiredProperties[] = $phpDocTagNode->value->__toString();
+            }
+        }
+
+        return $requiredProperties;
     }
 }

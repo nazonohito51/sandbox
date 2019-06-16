@@ -1,0 +1,2 @@
+rules:
+	- Sandbox\PHPStan\Rules\ExpressionEmulatorRule
